@@ -1,5 +1,5 @@
 {
-    "name": "firsyura/sdk-core-php",
+    "name": "daxpresents/sdk-core-php",
     "description": "PayPal Core SDK for PHP",
     "keywords": ["paypal", "php", "sdk"],
     "type": "library",
