@@ -19,7 +19,7 @@ class AuthSignature {
 		$params = array();
 		//TODO: set the Query parameters to $params if httpMethod is "GET"
 
-		$acc_req = OAuthRequest::from_consumer_and_token($authConsumer, $authToken, $httpMethod, $endpoint, $params);
+		$acc_req = PPOAuthRequest::from_consumer_and_token($authConsumer, $authToken, $httpMethod, $endpoint, $params);
 		$acc_req->sign_request($sig_method,$authConsumer, $authToken);
 		return  PPOAuthUtil::parseQueryString($acc_req);
 	}
@@ -43,7 +43,7 @@ class AuthSignature {
  * character (ASCII code 38) even if empty.
  *   - Chapter 9.2 ("HMAC-SHA1")
  */
-class PPOAuthSignatureMethod_HMAC_SHA1 extends OAuthSignatureMethod {
+class PPOAuthSignatureMethod_HMAC_SHA1 extends PPOAuthSignatureMethod {
 	function get_name() {
 		return "HMAC-SHA1";
 	}
@@ -73,7 +73,7 @@ class PPOAuthSignatureMethod_HMAC_SHA1 extends OAuthSignatureMethod {
  * A class for implementing a Signature Method
  * See section 9 ("Signing Requests") in the spec
  */
-abstract class OAuthSignatureMethod {
+abstract class PPOAuthSignatureMethod {
 	/**
 	 * Needs to return the name of the Signature Method (ie HMAC-SHA1)
 	 * @return string
@@ -106,7 +106,7 @@ abstract class OAuthSignatureMethod {
 	}
 }
 
-class OAuthRequest {
+class PPOAuthRequest {
 	public $parameters;
 	protected $http_method;
 	protected $http_url;
@@ -173,7 +173,7 @@ class OAuthRequest {
 
 		}
 
-		return new OAuthRequest($http_method, $http_url, $parameters);
+		return new PPOAuthRequest($http_method, $http_url, $parameters);
 	}
 
 	/**
@@ -181,9 +181,9 @@ class OAuthRequest {
 	 */
 	public static function from_consumer_and_token($consumer, $token, $http_method, $http_url, $parameters=NULL) {
 		$parameters = ($parameters) ?  $parameters : array();
-		$defaults = array("oauth_version" => OAuthRequest::$version,
+		$defaults = array("oauth_version" => PPOAuthRequest::$version,
 			// "oauth_nonce" => OAuthRequest::generate_nonce(),
-			"oauth_timestamp" => OAuthRequest::generate_timestamp(),
+			"oauth_timestamp" => PPOAuthRequest::generate_timestamp(),
 
 			"oauth_consumer_key" => $consumer->key);
 		if ($token)
@@ -191,7 +191,7 @@ class OAuthRequest {
 
 		$parameters = array_merge($defaults, $parameters);
 		ksort($parameters);
-		return new OAuthRequest($http_method, $http_url, $parameters);
+		return new PPOAuthRequest($http_method, $http_url, $parameters);
 	}
 
 	public function set_parameter($name, $value, $allow_duplicates = true) {
@@ -494,7 +494,7 @@ class OAuthServer {
 	 * figure out the signature with some defaults
 	 */
 	private function get_signature_method($request) {
-		$signature_method = $request instanceof OAuthRequest
+		$signature_method = $request instanceof PPOAuthRequest
 			? $request->get_parameter("oauth_signature_method")
 			: NULL;
 
@@ -519,7 +519,7 @@ class OAuthServer {
 	 * try to find the consumer for the provided request's consumer key
 	 */
 	private function get_consumer($request) {
-		$consumer_key = $request instanceof OAuthRequest
+		$consumer_key = $request instanceof PPOAuthRequest
 			? $request->get_parameter("oauth_consumer_key")
 			: NULL;
 
@@ -539,7 +539,7 @@ class OAuthServer {
 	 * try to find the token for the provided request's token key
 	 */
 	private function get_token($request, $consumer, $token_type="access") {
-		$token_field = $request instanceof OAuthRequest
+		$token_field = $request instanceof PPOAuthRequest
 			? $request->get_parameter('oauth_token')
 			: NULL;
 
@@ -558,10 +558,10 @@ class OAuthServer {
 	 */
 	private function check_signature($request, $consumer, $token) {
 		// this should probably be in a different method
-		$timestamp = $request instanceof OAuthRequest
+		$timestamp = $request instanceof PPOAuthRequest
 			? $request->get_parameter('oauth_timestamp')
 			: NULL;
-		$nonce = $request instanceof OAuthRequest
+		$nonce = $request instanceof PPOAuthRequest
 			? $request->get_parameter('oauth_nonce')
 			: NULL;
 
