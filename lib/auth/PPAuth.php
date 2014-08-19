@@ -58,7 +58,7 @@ class PPOAuthSignatureMethod_HMAC_SHA1 extends PPOAuthSignatureMethod {
 			($token) ? $token->secret : ""
 		);
 
-		$key_parts = OAuthUtil::urlencode_rfc3986($key_parts);
+		$key_parts = PPOAuthUtil::urlencode_rfc3986($key_parts);
 		$key = implode('&', $key_parts);
 		$key = preg_replace_callback("/(%[A-Za-z0-9]{2})/", array( $this,'replace_callback'), $key);//convert to lowercase
 		return base64_encode(hash_hmac('sha1', $base_string, $key, true));
