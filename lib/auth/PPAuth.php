@@ -7,7 +7,7 @@ class AuthSignature {
 	public function genSign($key, $secret, $token, $tokenSecret, $httpMethod, $endpoint) {
 
 		$authServer = new OAuthServer(new MockOAuthDataStore());
-		$hmac_method = new OAuthSignatureMethod_HMAC_SHA1();
+		$hmac_method = new PPOAuthSignatureMethod_HMAC_SHA1();
 		$authServer->add_signature_method($hmac_method);
 
 		$sig_method = $hmac_method;
@@ -35,33 +35,37 @@ class AuthSignature {
 }
 
 
-class OAuthToken {
-	// access tokens and request tokens
-	public $key;
-	public $secret;
 
-	/**
-	 * key = the token
-	 * secret = the token secret
-	 */
-	function __construct($key, $secret) {
-		$this->key = $key;
-		$this->secret = $secret;
+/**
+ * The HMAC-SHA1 signature method uses the HMAC-SHA1 signature algorithm as defined in [RFC2104]
+ * where the Signature Base String is the text and the key is the concatenated values (each first
+ * encoded per Parameter Encoding) of the Consumer Secret and Token Secret, separated by an '&'
+ * character (ASCII code 38) even if empty.
+ *   - Chapter 9.2 ("HMAC-SHA1")
+ */
+class PPOAuthSignatureMethod_HMAC_SHA1 extends OAuthSignatureMethod {
+	function get_name() {
+		return "HMAC-SHA1";
 	}
 
-	/**
-	 * generates the basic string serialization of a token that a server
-	 * would respond to request_token and access_token calls with
-	 */
-	function to_string() {
-		return "oauth_token=" .
-		PPOAuthUtil::urlencode_rfc3986($this->key) .
-		"&oauth_token_secret=" .
-		PPOAuthUtil::urlencode_rfc3986($this->secret);
-	}
+	public function build_signature($request, $consumer, $token) {
+		$base_string = $request->get_signature_base_string();
+		$base_string = preg_replace_callback("/(%[A-Za-z0-9]{2})/", array( $this,'replace_callback'), $base_string);//convert base string to lowercase
+		$request->base_string = $base_string;
 
-	function __toString() {
-		return $this->to_string();
+		$key_parts = array(
+			$consumer->secret,
+			($token) ? $token->secret : ""
+		);
+
+		$key_parts = OAuthUtil::urlencode_rfc3986($key_parts);
+		$key = implode('&', $key_parts);
+		$key = preg_replace_callback("/(%[A-Za-z0-9]{2})/", array( $this,'replace_callback'), $key);//convert to lowercase
+		return base64_encode(hash_hmac('sha1', $base_string, $key, true));
+	}
+	private function replace_callback($match)
+	{
+		return strtolower($match[0]);
 	}
 }
 
