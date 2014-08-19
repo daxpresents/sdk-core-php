@@ -182,7 +182,7 @@ class PPOAuthRequest {
 	public static function from_consumer_and_token($consumer, $token, $http_method, $http_url, $parameters=NULL) {
 		$parameters = ($parameters) ?  $parameters : array();
 		$defaults = array("oauth_version" => PPOAuthRequest::$version,
-			// "oauth_nonce" => OAuthRequest::generate_nonce(),
+			// "oauth_nonce" => PPOAuthRequest::generate_nonce(),
 			"oauth_timestamp" => PPOAuthRequest::generate_timestamp(),
 
 			"oauth_consumer_key" => $consumer->key);
@@ -624,7 +624,7 @@ class OAuthServer {
 
 }
 
-class OAuthDataStore {
+class PPOAuthDataStore {
 	function lookup_consumer($consumer_key) {
 		// implement me
 	}

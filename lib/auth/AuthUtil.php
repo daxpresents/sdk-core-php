@@ -1,6 +1,6 @@
 <?php //vim: foldmethod=marker
 
-class MockOAuthDataStore extends OAuthDataStore {/*{{{*/
+class MockOAuthDataStore extends PPOAuthDataStore {/*{{{*/
     private $consumer;
     private $request_token;
     private $access_token;
