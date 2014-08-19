@@ -6,7 +6,7 @@ class AuthSignature {
 
 	public function genSign($key, $secret, $token, $tokenSecret, $httpMethod, $endpoint) {
 
-		$authServer = new OAuthServer(new MockOAuthDataStore());
+		$authServer = new PPOAuthServer(new MockOAuthDataStore());
 		$hmac_method = new PPOAuthSignatureMethod_HMAC_SHA1();
 		$authServer->add_signature_method($hmac_method);
 
@@ -402,7 +402,7 @@ class PPOAuthRequest {
 	}
 }
 
-class OAuthServer {
+class PPOAuthServer {
 	protected $timestamp_threshold = 300; // in seconds, five minutes
 	protected $version = '1.0';             // hi blaine
 	protected $signature_methods = array();
