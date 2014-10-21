@@ -51,6 +51,7 @@ class PPHttpConnection
 		curl_setopt_array($ch, $this->httpConfig->getCurlOptions());		
 		curl_setopt($ch, CURLOPT_URL, $this->httpConfig->getUrl());		
 		curl_setopt($ch, CURLOPT_HEADER, false);
+		curl_setopt($ch, CURLOPT_SSLVERSION, 1);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $this->getHttpHeaders());
 		
 		switch($this->httpConfig->getMethod()) {
